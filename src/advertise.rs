@@ -5,9 +5,9 @@
 //!
 //! This implementation mainly focuses on [DNS-SD](https://www.w3.org/TR/wot-discovery/#introduction-dns-sd).
 
-use std::collections::HashMap;
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::IpAddr;
 use std::ops::Not;
+use std::{collections::HashMap, net::Ipv4Addr};
 
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
@@ -61,7 +61,7 @@ impl ThingType {
 pub struct Advertiser {
     pub(crate) mdns: ServiceDaemon,
     /// Default set of ips for the system
-    ips: Vec<Ipv4Addr>,
+    ips: Vec<IpAddr>,
     /// Default hostname
     hostname: String,
 }
@@ -73,7 +73,7 @@ const WELL_KNOWN: &str = "/.well-known/wot";
 /// Call [`ServiceBuilder::build`] to publish it.
 pub struct ServiceBuilder<'a> {
     mdns: &'a ServiceDaemon,
-    ips: Vec<Ipv4Addr>,
+    ips: Vec<IpAddr>,
     hostname: String,
     ty: ThingType,
     port: u16,
@@ -130,7 +130,7 @@ impl<'a> ServiceBuilder<'a> {
     ///
     /// By default all the non-loopback ipv4 interfaces are used.
     pub fn ips<I: Into<Ipv4Addr>>(mut self, ips: impl Iterator<Item = I>) -> Self {
-        self.ips = ips.map(|ip| ip.into()).collect();
+        self.ips = ips.map(|ip| ip.into().into()).collect();
 
         self
     }
@@ -185,7 +185,7 @@ impl Advertiser {
             .filter_map(|iface| {
                 let ip = iface.ip();
                 match ip {
-                    IpAddr::V4(ip) => Some(ip),
+                    IpAddr::V4(_) => Some(ip),
                     _ => None,
                 }
             })
