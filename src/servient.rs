@@ -69,8 +69,10 @@ impl<O: ExtendableThing> Servient<O> {
             .port(self.http_addr.port())
             .build()?;
 
-        axum::Server::bind(&self.http_addr)
-            .serve(self.router.clone().into_make_service())
+        let listener = tokio::net::TcpListener::bind(&self.http_addr)
+            .await
+            .map_err(axum::Error::new)?;
+        axum::serve(listener, self.router.clone())
             .await
             .map_err(axum::Error::new)?;
 
