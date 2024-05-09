@@ -5,9 +5,9 @@
 //!
 //! This implementation mainly focuses on [DNS-SD](https://www.w3.org/TR/wot-discovery/#introduction-dns-sd).
 
+use std::collections::HashMap;
 use std::net::IpAddr;
 use std::ops::Not;
-use std::{collections::HashMap, net::Ipv4Addr};
 
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
@@ -129,8 +129,9 @@ impl<'a> ServiceBuilder<'a> {
     /// Listening IPs
     ///
     /// By default all the non-loopback ipv4 interfaces are used.
-    pub fn ips<I: Into<Ipv4Addr>>(mut self, ips: impl Iterator<Item = I>) -> Self {
-        self.ips = ips.map(|ip| ip.into().into()).collect();
+    pub fn ips<I: Into<IpAddr>>(mut self, ips: impl IntoIterator<Item = I>) -> Self {
+        let ips = ips.into_iter();
+        self.ips = ips.map(|ip| ip.into()).collect();
 
         self
     }
