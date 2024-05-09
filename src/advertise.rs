@@ -81,6 +81,16 @@ pub struct ServiceBuilder<'a> {
     name: String,
 }
 
+fn normalize_hostname(mut hostname: String) -> String {
+    if !hostname.ends_with(".local") {
+        hostname.push_str(".local");
+    }
+    if !hostname.ends_with('.') {
+        hostname.push('.')
+    }
+    hostname
+}
+
 impl<'a> ServiceBuilder<'a> {
     fn new(ad: &'a Advertiser, name: impl Into<String>) -> ServiceBuilder<'a> {
         Self {
@@ -121,7 +131,7 @@ impl<'a> ServiceBuilder<'a> {
 
     /// The hostname used by the MDNS daemon.
     pub fn hostname(mut self, host: impl Into<String>) -> Self {
-        self.hostname = host.into();
+        self.hostname = normalize_hostname(host.into());
 
         self
     }
@@ -175,10 +185,7 @@ impl Advertiser {
     pub fn new() -> Result<Self> {
         let mdns = ServiceDaemon::new()?;
 
-        let mut hostname = hostname::get()?.to_string_lossy().to_string();
-        if !hostname.ends_with(".local") {
-            hostname.push_str(".local");
-        }
+        let hostname = normalize_hostname(hostname::get()?.to_string_lossy().to_string());
 
         let ips = if_addrs::get_if_addrs()?
             .iter()
@@ -224,7 +231,7 @@ mod test {
                 let props = info.get_properties();
                 assert_eq!(props.get_property_val_str("td"), Some(WELL_KNOWN));
                 assert_eq!(props.get_property_val_str("type"), Some("Thing"));
-                assert_eq!(info.get_hostname(), "testhost.");
+                assert_eq!(info.get_hostname(), "testhost.local.");
             },
         );
     }

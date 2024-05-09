@@ -24,10 +24,14 @@ impl ExtendableThing for A {
 
 #[tokio::main]
 async fn main() {
+    let addr = std::env::args()
+        .nth(1)
+        .unwrap_or_else(|| "0.0.0.0:8080".into());
+
     let servient = Servient::builder("TestThing")
         .ext(A {})
         .finish_extend()
-        .http_bind("127.0.0.1:8080".parse().unwrap())
+        .http_bind(addr.parse().unwrap())
         .property("hello", |b| {
             b.ext(())
                 .ext_interaction(())
@@ -66,7 +70,7 @@ async fn main() {
         .build_servient()
         .unwrap();
 
-    eprintln!("Listening to 127.0.0.1:8080");
+    eprintln!("Listening to {addr}");
     dbg!(&servient.router);
 
     println!("Running the servient for 10 seconds.");
