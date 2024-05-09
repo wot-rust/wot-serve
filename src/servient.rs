@@ -113,11 +113,20 @@ impl Servient<Nil> {
 impl<O: ExtendableThing> Servient<O> {
     /// Start a listening server and advertise for it.
     pub async fn serve(&self) -> Result<(), Error> {
-        self.sd
-            .add_service(&self.name)
-            .thing_type(self.thing_type)
-            .port(self.http_addr.port())
-            .build()?;
+        let ip = self.http_addr.ip();
+
+        if !ip.is_loopback() {
+            let mut ad = self
+                .sd
+                .add_service(&self.name)
+                .thing_type(self.thing_type)
+                .port(self.http_addr.port());
+
+            if !ip.is_unspecified() {
+                ad = ad.ips([ip]);
+            }
+            ad.build()?;
+        }
 
         let listener = tokio::net::TcpListener::bind(&self.http_addr)
             .await
