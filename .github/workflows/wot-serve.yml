@@ -10,7 +10,6 @@ on:
 
 jobs:
   clippy-rustfmt:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +33,6 @@ jobs:
         reporter: github-pr-review
 
   build-test:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -54,8 +52,13 @@ jobs:
     - name: Generate docs
       run: cargo doc --no-deps
 
-  code-coverage:
+  cargo-deny:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: EmbarkStudios/cargo-deny-action@v2
 
+  code-coverage:
     runs-on: ubuntu-latest
 
     steps:
