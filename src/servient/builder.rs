@@ -125,13 +125,15 @@ fn uritemplate_to_axum(uri: &str) -> String {
                         1,
                         "more than one variable in the expression is not supported."
                     );
-                    path.push(':');
+                    path.push('{');
                     path.push_str(&varspec[0].name);
+                    path.push('}')
                 }
                 Operator::Slash => {
                     for v in varspec {
-                        path.push_str("/:");
+                        path.push_str("/{");
                         path.push_str(&v.name);
+                        path.push('}')
                     }
                 }
                 Operator::Question | Operator::Hash => break,
@@ -451,12 +453,12 @@ mod test {
 
     #[test]
     fn hierarchical_uri() {
-        uritemplate("/properties{/prop,sub}", "/properties/:prop/:sub");
+        uritemplate("/properties{/prop,sub}", "/properties/{prop}/{sub}");
     }
 
     #[test]
     fn templated_uri() {
-        uritemplate("/actions/fade/{action_id}", "/actions/fade/:action_id");
+        uritemplate("/actions/fade/{action_id}", "/actions/fade/{action_id}");
     }
 
     #[test]
