@@ -9,7 +9,7 @@ keywords = ["wot", "WebofThings"]
 
 [dependencies]
 wot-td = "0.6.2"
-mdns-sd = "0.13.0"
+mdns-sd = "0.22"
 thiserror = "2.0.21"
 if-addrs = "0.13.0"
 hostname = "0.4.2"

@@ -218,7 +218,7 @@ impl Advertiser {
 mod test {
     use super::*;
 
-    use mdns_sd::{ServiceEvent::*, ServiceInfo};
+    use mdns_sd::{ResolvedService, ServiceEvent::*};
     use std::time::Duration;
 
     #[test]
@@ -264,7 +264,7 @@ mod test {
         );
     }
 
-    fn test_feature<F>(name: &str, browse: &str, build: F, check: fn(ServiceInfo))
+    fn test_feature<F>(name: &str, browse: &str, build: F, check: fn(ResolvedService))
     where
         F: for<'b> Fn(ServiceBuilder<'b>) -> ServiceBuilder<'b>,
     {
@@ -277,7 +277,7 @@ mod test {
         while let Ok(ev) = browser.recv_timeout(Duration::from_secs(1)) {
             if let ServiceResolved(info) = ev {
                 if info.get_fullname().split_once('.').unwrap().0 == name {
-                    check(info);
+                    check(*info);
 
                     return;
                 }
