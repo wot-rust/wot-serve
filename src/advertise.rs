@@ -209,7 +209,7 @@ impl Advertiser {
     }
 
     /// Register and Advertise a new service.
-    pub fn add_service(&self, name: impl Into<String>) -> ServiceBuilder {
+    pub fn add_service(&self, name: impl Into<String>) -> ServiceBuilder<'_> {
         ServiceBuilder::new(self, name)
     }
 }
